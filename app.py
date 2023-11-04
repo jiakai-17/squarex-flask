@@ -17,14 +17,23 @@ def get_domain_info(url):
     parsed_url = urlparse(url)
 
     ip = socket.gethostbyname(parsed_url.netloc)
-    ip_info = requests.get(f"https://ipinfo.io/{ip}/json").json()
+
+    headers = {
+        "origin": "https://ipgeolocation.io",
+        "referer": "https://ipgeolocation.io/ip-location",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0"
+    }
+
+    ip_info = requests.get(f"https://api.ipgeolocation.io/ipgeo?ip={ip}", headers=headers).json()
+
+    print("got ip info: ", ip_info)
 
     return {
         "ip": ip,
-        "isp": ip_info['org'].split(' ', 1)[1],
-        "organization": ip_info['org'].split(' ', 1)[1],
-        "asn": ip_info['org'].split(' ', 1)[0],
-        "location": ip_info['country']
+        "isp": ip_info['isp'],
+        "organization": ip_info['organization'],
+        "asn": ip_info['asn'],
+        "location": ip_info['country_code2']
     }
 
 
@@ -32,10 +41,12 @@ def get_domain_info(url):
 def get_subdomains(url):
     parsed_url = urlparse(url)
 
-    subdomain_apikey = "at_gyaztPGsWdHlC1nWApU6iMX5Xx66L"
+    subdomain_apikey = "at_GD9LmBn9XGBSxIWlWYCxDJtXinjht"
     main_domain = '.'.join(parsed_url.netloc.split('.')[-2:])
     subdomains_info = requests.get(
         f"https://subdomains.whoisxmlapi.com/api/v1?apiKey={subdomain_apikey}&domainName={main_domain}").json()
+
+    print("got subdomains: ", subdomains_info)
 
     return list(i['domain'] for i in subdomains_info['result']['records'])
 
