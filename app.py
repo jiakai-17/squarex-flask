@@ -161,12 +161,13 @@ def handle_ws(ws):
             # 1st message
             url = message['url']
             if urlparse(url).scheme not in ['http', 'https']:
-                url = "https://" + url
-            msg = {"data": "session created for " + url}
-            cached_url = url
+                cached_url = "https://" + url
+            else:
+                cached_url = url
             cached_info = None
             cached_subdomains = None
             cached_asset_domains = None
+            msg = {"data": "session created for " + url}
             ws.send(json.dumps(msg))
 
         elif cached_url and 'operation' in message:
